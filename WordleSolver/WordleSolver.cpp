@@ -68,15 +68,16 @@ std::map<int, std::list<std::string>> getNewWordList(std::map<int, std::list<std
     for (auto& wordVec : oldList)
     {
         if (bannedTotal & wordVec.first) continue;
+        if ((sugested & wordVec.first) != sugested) continue;
         for (auto& word : wordVec.second)
         {
+            bool valid = true;
             for (int i = 0; i < 5; i++)
             {
-                if (bannedLetters[i] & 1 << (word[i] - A)) continue;
-                if (word[i] != required[i]) continue;
-                if ((wordVec.first & sugested) != sugested) continue;
+                if (bannedLetters[i] & 1 << (word[i] - A)) valid = false;
+                if (required[i] != 0 && word[i] != required[i]) valid = false;
             }
-            newList[wordVec.first].push_back(word);
+            if (valid) newList[wordVec.first].push_back(word);
         }
     }
     return newList;
@@ -166,7 +167,9 @@ int main()
     std::vector<letterChance> split;
     std::string choice;
     std::string result;
-    std::string file = "C:\\Users\\dande\\source\\repos\\WordleSolver\\WordleSolver\\valid-wordle-words.txt";
+    // std::string file = "C:\\Users\\dande\\source\\repos\\WordleSolver\\WordleSolver\\valid-wordle-words.txt";
+    // std::string file = "C:\\Users\\dande\\Source\\Repos\\danderson11235\\WordleSolver\\WordleSolver\\valid-wordle-words.txt";
+    std::string file = "/mnt/c/Users/dande/Source/Repos/danderson11235/WordleSolver/WordleSolver/valid-wordle-words.txt";
     std::map<int, std::list<std::string>> wordList = readWordList(file);
     for (int i = 0; i < 6; i++)
     {
