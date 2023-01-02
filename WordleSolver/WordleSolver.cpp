@@ -57,6 +57,7 @@ std::map<int, std::list<std::string>> readWordList(std::string &fileName)
     while (file)
     {
         std::getline(file, line);
+        line.pop_back();
         output[getWordValue(line)].push_back(line);
     }
     return output;
@@ -100,30 +101,20 @@ std::vector<letterChance> getSplit(std::map<int, std::list<std::string>> &wordLi
         }
     }
     for (int i = 0; i < 26; i++) output[i] = letterChance{ (char)(i + A), 1.0f - std::abs((count[i] / total) - 0.5f) };
-    std::sort(output.begin(), output.end());
-    std::reverse(output.begin(), output.end());
     return output;
 }
 
 std::string getChoice(std::map<int, std::list<std::string>> &wordList, std::vector<letterChance> &split, int bannedTotal, int bannedLetters[5], char required[5], int sugested)
 {
-    std::string word = "";
     int idx = 0;
-    for (int i = 0; i < 5; i++)
-    {
-        if (required[i] != 0)
-        {
-            word += required[i];
-            continue;
-        }
-        word += split[idx++].letter;
-    }
-    int wordval = getWordValue(word);
-    idx = 0;
-    int score = 0;
+    float score = 0;
     for (auto list : wordList)
     {
-        int count = countBitsSet(list.first & wordval);
+        float count = 0;
+        for (int i = 0; i < 26; i++) 
+        {
+            count += (list.first & 1 << i)? split[i].chance : 0;
+        }
         if (count < score) continue;
         idx = list.first;
         score = count;
@@ -175,7 +166,8 @@ int main()
     {
         split = getSplit(wordList);
         choice = getChoice(wordList, split, bannedTotal, bannedLetters, requiredLetters, sugested);
-        std::cout << "Enter the word " << choice << " into wordle\nenter here x for gray space, y for yellow space, g for green space ->" << std::endl;
+        std::cout << "Enter the word [" << choice << "] into wordle" << std::endl;
+        std::cout << "enter here x for gray space, y for yellow space, g for green space ->" << std::endl;
         if (choice == "") break;
         std::cin >> result;
         if (result == "ggggg")
@@ -191,13 +183,3 @@ int main()
     return 1;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
